@@ -1,0 +1,73 @@
+pipeline {
+	agent any
+	
+	tools {
+		maven 'Maven'
+	}
+
+	environment {
+		SCANNER_HOME = tool 'sonarScanner'
+		VERACODE_APPLICATION_NAME = 'ServiceNow DevOps App#1'
+		VERACODE_SCANNER_NAME = 'Veracode'
+	} 
+
+	stages {
+		stage('Build') {
+			steps {
+				sh 'mvn -B -DskipTests clean compile'
+			}
+		}
+
+		stage('Test') {
+			steps {
+			  	sh 'mvn test'
+				sleep(5);
+			}
+			post {
+				always {
+					junit "**/target/surefire-reports/*.xml"
+				}
+			}
+		}
+
+		stage('Software Quality Summaries') {
+			steps {
+				sonarSummaries()
+			}
+		}
+
+		stage('Security Summaries') {
+			steps {
+				veracode applicationName: "${env.VERACODE_APPLICATION_NAME}", criticality: 'VeryHigh', debug: true, timeout: 20, fileNamePattern: '', pHost: '', pPassword: '', pUser: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: "${BUILD_TAG}", uploadExcludesPattern: '', uploadIncludesPattern: 'target/*.jar', vid: "VERACODE_API_ID", vkey: "VERACODE_API_KEY", waitForScan : true
+			}
+		}
+
+		stage('Artifact Registration') {
+			steps {
+				snDevOpsArtifact(artifactsPayload: """
+				{
+				"artifacts":
+				[
+				    {
+				        "name": "${artifactname}",
+				        "version": "${version}",
+				        "semanticVersion": "${semanticVersion}",
+				        "repositoryName": "${repoName}"
+				    }
+				],
+				"branchName": "main"
+				}""")
+			}     
+		}
+	}
+}
+
+def sonarSummaries() {
+	withSonarQubeEnv(installationName: 'sonarcloud1'){
+		sh 'mvn clean verify sonar:sonar \
+		    -Dsonar.login=623a5b264ce3e56cd686b493e1229b9498d592f9 \
+		    -Dsonar.host.url=https://sonarcloud.io \
+		    -Dsonar.organization=pramaraju96 \
+		    -Dsonar.projectKey=pramaraju96_DevOps-Test'
+    }
+}

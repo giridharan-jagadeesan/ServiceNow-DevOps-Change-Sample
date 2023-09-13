@@ -30,19 +30,7 @@ pipeline {
 			}
 		}
 
-		stage('Software Quality Summaries') {
-			steps {
-				sonarSummaries()
-			}
-		}
-
-		stage('Security Summaries') {
-			steps {
-				veracode applicationName: "${env.VERACODE_APPLICATION_NAME}", criticality: 'VeryHigh', debug: true, timeout: 20, fileNamePattern: '', pHost: '', pPassword: '', pUser: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: "${BUILD_TAG}", uploadExcludesPattern: '', uploadIncludesPattern: 'target/*.jar', vid: "VERACODE_API_ID", vkey: "VERACODE_API_KEY", waitForScan : true
-			}
-		}
-
-		stage('Artifact Registration') {
+		stage('Register Artifact') {
 			steps {
 				snDevOpsArtifact(artifactsPayload: """
 				{
@@ -57,10 +45,60 @@ pipeline {
 				],
 				"branchName": "main"
 				}""")
+
+				// uncomment the below block of code to use artifact step with JFrog
+				/*
+				sh 'mvn package'
+				
+				echo "Uploading the artifacts to JFrog"
+
+				script{
+					def server = Artifactory.server 'ramadevops'
+					def uploadSpec = """{
+						"files": [{
+							"pattern": "target/devops-e2e-1.40.0-SNAPSHOT.jar",
+							"target": "devops-jfrog-local-repo/"
+						}]
+					}"""
+
+					def buildInfo = server.upload(uploadSpec) 
+					server.publishBuildInfo buildInfo
+					sleep(5);
+				}
+
+				echo "Downloading the artifacts from JFrog"
+
+				script{
+					def server = Artifactory.server 'ramadevops'
+					def downSpec= """{
+						"files": [{
+							"pattern": "devops-jfrog-local-repo/devops-e2e-1.40.0-SNAPSHOT.jar",
+							"target":"/var/jenkins_home/workspace/rama folder/CD Pipeline/${BUILD_NUMBER}/"
+						}]
+					}"""
+
+					def buildInfo = server.download(downSpec) 
+					server.publishBuildInfo buildInfo
+					sleep(5);
+				}
+				*/
+
 			}     
 		}
 
-		stage('Package Registration') {
+		stage('Sonar Scan') {
+			steps {
+				sonarSummaries()
+			}
+		}
+
+		stage('Security Scan') {
+			steps {
+				veracode applicationName: "${env.VERACODE_APPLICATION_NAME}", criticality: 'VeryHigh', debug: true, timeout: 20, fileNamePattern: '', pHost: '', pPassword: '', pUser: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: "${BUILD_TAG}", uploadExcludesPattern: '', uploadIncludesPattern: 'target/*.jar', vid: "VERACODE_API_ID", vkey: "VERACODE_API_KEY", waitForScan : true
+			}
+		}
+
+		stage('Register Package') {
 			steps {
 				snDevOpsPackage(
 				name: "${packageName}",
@@ -80,7 +118,7 @@ pipeline {
 			}
 		}
 		  
-		stage('DevOps Change') {
+		stage('Change') {
 			steps {
 				snDevOpsChange(changeRequestDetails:"""
 				{

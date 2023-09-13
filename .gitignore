@@ -1,0 +1,19 @@
+.DS_Store
+.classpath
+.project
+target/
+.repository
+.settings/
+node/
+node_modules/
+/bin/
+**/bin/
+**/*.iml
+.credentials/
+.idea/
+.metadata/
+
+# track specific metadata
+.mvn/track.properties
+*.classpath
+*.project

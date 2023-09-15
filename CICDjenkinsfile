@@ -159,7 +159,7 @@ pipeline {
 }
 
 def sonarSummaries() {
-	withSonarQubeEnv(installationName: 'SonarCloud'){
+	withSonarQubeEnv(installationName: 'ramasonarcloud'){
 		sh 'mvn clean verify sonar:sonar \
 		    -Dsonar.login=623a5b264ce3e56cd686b493e1229b9498d592f9 \
 		    -Dsonar.host.url=https://sonarcloud.io \

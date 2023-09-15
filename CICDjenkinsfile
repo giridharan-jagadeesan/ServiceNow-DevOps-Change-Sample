@@ -1,3 +1,15 @@
+def packageName = "app-devops-package.war"
+
+def artifactname = "app-devops.jar"
+def version = "1.${BUILD_NUMBER}"
+def semanticVersion = "1.${BUILD_NUMBER}.0"
+
+def repoName = "pramaraju96/DevOps-Test"
+def pipelineName = "${JOB_NAME}"
+
+def changeRequestId = "defaultChangeRequestId"
+def stageName = "Deploy"
+
 pipeline {
 	agent any
 	
@@ -94,7 +106,7 @@ pipeline {
 
 		stage('Security Scan') {
 			steps {
-				veracode applicationName: "${env.VERACODE_APPLICATION_NAME}", criticality: 'VeryHigh', debug: true, timeout: 20, fileNamePattern: '', pHost: '', pPassword: '', pUser: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: "${BUILD_TAG}", uploadExcludesPattern: '', uploadIncludesPattern: 'target/*.jar', vid: "VERACODE_API_ID", vkey: "VERACODE_API_KEY", waitForScan : true
+				veracode applicationName: "${env.VERACODE_APPLICATION_NAME}", criticality: 'VeryHigh', debug: true, timeout: 20, fileNamePattern: '', pHost: '', pPassword: '', pUser: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: "${BUILD_TAG}", uploadExcludesPattern: '', uploadIncludesPattern: 'target/*.jar', vid: "5a57339d6779ffb76782e03df3f6e9d1", vkey: "f31d151c427a3286469a6291b14dee15e7f553e066b32c801f09014dc3282de4f51a81cd0bde7c7dd9d95de9a71a32c8a2c582158f278320ae765fe9fd232e0a", waitForScan : true
 			}
 		}
 

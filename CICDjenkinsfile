@@ -100,7 +100,7 @@ pipeline {
 
 		stage('Sonar Scan') {
 			steps {
-				//sonarSummaries()
+				sonarSummaries()
 			}
 		}
 
@@ -132,21 +132,24 @@ pipeline {
 		  
 		stage('Change') {
 			steps {
-				snDevOpsChange(changeRequestDetails:"""
-				{
-				    "attributes":
-				    {
-				        "short_description": "Test description",
-				        "priority": "1",
-				        "start_date": "2021-02-05 08:00:00",
-				        "end_date": "2022-04-05 08:00:00",
-				        "justification": "test justification",
-				        "description": "test description",
-				        "cab_required": true,
-				        "comments": "This update for work notes is from jenkins file",
-				        "work_notes": "test work notes"
-				    }
-				}""")
+			    snDevOpsChange(changeRequestDetails: '''
+			    {
+			    "attributes": {
+					"requested_by": {
+						"name": "DevOps System"
+					}, //requested_by with name.
+					//You can provide requested_by with sys_id. Example: "requested_by": "62826bf03710200044e0bfc8bcbe5df1", 
+					"assignment_group": {
+						"name": "Change Management"
+					}, //assignment_group with name.
+					//You can provide assignment_group with sys_id. Example: "assignment_group": "5f721d93c0a8010e015533746de18bf9",
+					"priority": "2",
+					"comments": "This is a sample pipeline script to be added in your change step",
+					"work_notes": "Update this to work_notes",
+					"start_date": "2022-01-05 11:59:59", //This is the planned start date.
+					"end_date": "2022-01-08 11:59:59" // This is the planned end date.
+				}
+			    }''')
 			}
 		}
 

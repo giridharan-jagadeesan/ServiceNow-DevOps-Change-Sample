@@ -1,3 +1,15 @@
+def packageName = "app-devops-package.war"
+
+def artifactname = "app-devops.jar"
+def version = "1.${BUILD_NUMBER}"
+def semanticVersion = "1.${BUILD_NUMBER}.0"
+
+def repoName = "pramaraju96/DevOps-Test"
+def pipelineName = "${JOB_NAME}"
+
+def changeRequestId = "defaultChangeRequestId"
+def stageName = "Deploy"
+
 pipeline {
 	agent any
 	
@@ -30,19 +42,7 @@ pipeline {
 			}
 		}
 
-		stage('Software Quality Summaries') {
-			steps {
-				sonarSummaries()
-			}
-		}
-
-		stage('Security Summaries') {
-			steps {
-				veracode applicationName: "${env.VERACODE_APPLICATION_NAME}", criticality: 'VeryHigh', debug: true, timeout: 20, fileNamePattern: '', pHost: '', pPassword: '', pUser: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: "${BUILD_TAG}", uploadExcludesPattern: '', uploadIncludesPattern: 'target/*.jar', vid: "VERACODE_API_ID", vkey: "VERACODE_API_KEY", waitForScan : true
-			}
-		}
-
-		stage('Artifact Registration') {
+		stage('Register Artifact') {
 			steps {
 				snDevOpsArtifact(artifactsPayload: """
 				{
@@ -57,15 +57,49 @@ pipeline {
 				],
 				"branchName": "main"
 				}""")
+
+				// uncomment the below block of code to use artifact step with JFrog
+				/*
+				sh 'mvn package'
+				
+				echo "Uploading the artifacts to JFrog"
+
+				script{
+					def server = Artifactory.server 'ramadevops'
+					def uploadSpec = """{
+						"files": [{
+							"pattern": "target/devops-e2e-1.40.0-SNAPSHOT.jar",
+							"target": "devops-jfrog-local-repo/"
+						}]
+					}"""
+
+					def buildInfo = server.upload(uploadSpec) 
+					server.publishBuildInfo buildInfo
+					sleep(5);
+				}
+				*/
+
 			}     
+		}
+
+		stage('Sonar Scan') {
+			steps {
+				sonarSummaries()
+			}
+		}
+
+		stage('Security Scan') {
+			steps {
+				veracode applicationName: "${env.VERACODE_APPLICATION_NAME}", criticality: 'VeryHigh', debug: true, timeout: 20, fileNamePattern: '', pHost: '', pPassword: '', pUser: '', replacementPattern: '', sandboxName: '', scanExcludesPattern: '', scanIncludesPattern: '', scanName: "${BUILD_TAG}", uploadExcludesPattern: '', uploadIncludesPattern: 'target/*.jar', vid: "5a57339d6779ffb76782e03df3f6e9d1", vkey: "f31d151c427a3286469a6291b14dee15e7f553e066b32c801f09014dc3282de4f51a81cd0bde7c7dd9d95de9a71a32c8a2c582158f278320ae765fe9fd232e0a", waitForScan : true
+			}
 		}
 	}
 }
 
 def sonarSummaries() {
-	withSonarQubeEnv(installationName: 'sonarcloud1'){
+	withSonarQubeEnv(installationName: 'ramasonarcloud'){
 		sh 'mvn clean verify sonar:sonar \
-		    -Dsonar.login=623a5b264ce3e56cd686b493e1229b9498d592f9 \
+		    -Dsonar.login=1926d793f92181dd0ac406335d4d4bea392a3023 \
 		    -Dsonar.host.url=https://sonarcloud.io \
 		    -Dsonar.organization=pramaraju96 \
 		    -Dsonar.projectKey=pramaraju96_DevOps-Test'

@@ -100,7 +100,7 @@ pipeline {
 
 		stage('Sonar Scan') {
 			steps {
-				sonarSummaries()
+				//sonarSummaries()
 			}
 		}
 

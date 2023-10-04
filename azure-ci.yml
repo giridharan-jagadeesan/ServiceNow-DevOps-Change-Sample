@@ -1,1 +1,104 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+    - none
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Job_Build
+        steps:
+        - task: Maven@4
+          inputs:
+            mavenPomFile: 'pom.xml'
+            goals: 'clean compile'
+            publishJUnitResults: false
+            javaHomeOption: 'JDKVersion'
+            mavenVersionOption: 'Default'
+            mavenAuthenticateFeed: false
+            effectivePomSkip: false
+            sonarQubeRunAnalysis: false
+
+  - stage: Test
+    dependsOn: Build
+    jobs:
+      - job: Job_Test
+        steps:
+        - task: SonarCloudPrepare@1
+          inputs:
+            scannerMode: 'Other'
+        - task: Maven@4
+          inputs:
+            mavenPomFile: 'pom.xml'
+            goals: 'test'
+            publishJUnitResults: true
+            testResultsFiles: '**/surefire-reports/TEST-*.xml'
+            testRunTitle: 'Publish maven test results'
+            javaHomeOption: 'JDKVersion'
+            mavenVersionOption: 'Default'
+            mavenAuthenticateFeed: false
+            effectivePomSkip: false
+            sonarQubeRunAnalysis: true
+            sqMavenPluginVersionChoice: 'latest'
+
+  - stage: Register Artifact
+    dependsOn: Test
+    jobs:
+      - job: Job_RegisterArtifact
+        steps:
+        - task: ServiceNow-DevOps-Agent-Artifact-Registration@1
+          inputs:
+            connectedServiceName: 'dsinghu6-Basic Project1-ServiceNow DevOps Service Connection'
+            artifactsPayload: |
+                {
+                    "artifacts": [
+                        {
+                        "name": "app-devops-artifact.jar",
+                        "version": "1.$(Build.BuildId)",
+                        "semanticVersion": "1.$(Build.BuildId).0",
+                        "repositoryName": "ServiceNow-DevOps-Change-Sample"
+                        }
+                    ]
+                }
+
+
+  - stage: Prod
+    jobs:
+      - job: Job_Prod
+        pool:
+          name: server
+        steps:
+        # - task: ServiceNow-DevOps-Server-Change-Acceleration@1
+        #   inputs:
+        #     connectedServiceName: "dsinghu1-Basic Project1-ServiceNow DevOps Service Connection" # ServiceNow DevOps Change Velocity Service Connection
+
+        - task: ServiceNow-DevOps-Server-Change-Acceleration@1
+          inputs:
+            connectedServiceName: "dsinghu1-Basic Project1-ServiceNow DevOps Service Connection" # ServiceNow DevOps Change Velocity Service Connection
+            changeRequestDetails: |
+              {
+                "attributes": {
+                  "requested_by": {
+                    "name": "DevOps System"
+                  },
+                  "assignment_group": {
+                    "name": "Change Management"
+                  },
+                  "priority": "2",
+                  "comments": "This is a sample pipeline script to be added in your change step",
+                  "work_notes": "Update this to work_notes",
+                  "start_date": "2023-09-07 11:59:59",
+                  "end_date": "2023-09-09 11:59:59"
+                }
+              }
+            # You can specify the requested_by attribute either with name or sys_id. Example: "requested_by":{"name": "Test User"} or "requested_by": "62826bf03710200044e0bfc8bcbe5df1"
+            # You can specify the assignment_group attribute either with name or sys_id. Example: "assignment_group":{"name": "Change Approval Team"} or "assignment_group": "5f721d93c0a8010e015533746de18bf9"
+            # start_date: This is the planned start date
+            # end_date: This is the planned end date  
 

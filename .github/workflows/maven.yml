@@ -226,7 +226,7 @@ jobs:
               "requested_by": {
                 "name": "DevOps System"
               },
-              "change_model": {
+              "chg_model": {
               "name": "Normal"
               }
             }

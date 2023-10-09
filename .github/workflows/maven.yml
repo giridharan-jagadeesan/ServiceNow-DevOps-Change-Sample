@@ -221,7 +221,12 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           job-name: 'Change'
           context-github: ${{ toJSON(github) }}
-          change-request: '{        
+          change-request: '{  
+            "attributes": {
+              "change_model": {
+                "name": "Normal"
+              }
+            }
           }'
           
   # uncomment below lines of code to create change request using deployment gates, indent code if necessary

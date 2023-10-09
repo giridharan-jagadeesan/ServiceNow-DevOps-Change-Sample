@@ -165,7 +165,7 @@ jobs:
     #       scantimeout: 20
 
     - name: ServiceNow DevOps Security Results
-      uses: ServiceNow/servicenow-devops-security-result@v2.0.0
+      uses: ServiceNow/servicenow-devops-security-result@v3.0.0
       with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_TOKEN }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
@@ -214,7 +214,7 @@ jobs:
     steps:     
     - name: ServiceNow DevOps Change Automation
     # You may pin to the exact commit or the version.            
-      uses: ServiceNow/servicenow-devops-change@v2.0.0
+      uses: ServiceNow/servicenow-devops-change@v3.0.0
       with:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           devops-integration-token: ${{ secrets.SN_DEVOPS_TOKEN }}

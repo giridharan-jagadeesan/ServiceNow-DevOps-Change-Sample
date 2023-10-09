@@ -67,6 +67,21 @@ stages:
                     ]
                 }
 
+  - stage: Security
+    dependsOn: Register Artifact
+    jobs:
+      - job: Job_Security
+        steps:
+        - task: ServiceNow-DevOps-Build-Security-Results@1
+          inputs:
+            connectedServiceName: 'dsinghu6-Basic Project1-ServiceNow DevOps Service Connection'
+            securityResultAttributes: |
+              {
+              "scanner": "Checkmarx One",
+              "projectName": "JenkinsPipleineCxOne",
+              "projectId": "eebafc6c-9143-4f50-822c-1affe42472da",
+              "scanId": "9ed210b6-3a2f-4b04-8f31-a334df74e74e"
+              }
 
   - stage: Prod
     jobs:

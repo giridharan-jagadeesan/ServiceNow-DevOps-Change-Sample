@@ -172,7 +172,7 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: 'Security Scan'
-          security-result-attributes: '{ "scanner": "${{ secrets.SCANNER_NAME }}"}'
+          security-result-attributes: '{ "scanner": "${{ secrets.SCANNER_NAME }}", "projectId": "3285", "securityToolId": "1004455dc3b5b910a653f92f05013141"}'
 
   # registerPackage:
   #   name: 'Register Package'

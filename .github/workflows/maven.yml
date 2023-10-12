@@ -227,7 +227,7 @@ jobs:
                 "name": "DevOps System"
               },
               "chg_model": {
-              "name": "Normal"
+              "name": "DevOps"
               }
             }
           }'
